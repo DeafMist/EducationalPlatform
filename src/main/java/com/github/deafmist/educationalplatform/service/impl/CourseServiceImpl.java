@@ -1,46 +1,61 @@
 package com.github.deafmist.educationalplatform.service.impl;
 
-import com.github.deafmist.educationalplatform.dto.Course;
+import com.github.deafmist.educationalplatform.converter.DomainToApi;
+import com.github.deafmist.educationalplatform.dto.CourseDto;
+import com.github.deafmist.educationalplatform.dto.UpdateCourseRequest;
+import com.github.deafmist.educationalplatform.repository.CourseRepository;
 import com.github.deafmist.educationalplatform.service.CourseService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.NoSuchElementException;
+
+import static com.github.deafmist.educationalplatform.converter.ApiToDomain.dtoToCourse;
 
 @Service
 public class CourseServiceImpl implements CourseService {
-//    private final CourseRepository courseRepository;
+    private final CourseRepository courseRepository;
 
-//    @Autowired
-//    public CourseServiceImpl(CourseRepository courseRepository) {
-//        this.courseRepository = courseRepository;
-//    }
-
-    @Override
-    public List<Course> findAll() {
-//        return courseRepository.findAll();
-        return null;
+    @Autowired
+    public CourseServiceImpl(CourseRepository courseRepository) {
+        this.courseRepository = courseRepository;
     }
 
     @Override
-    public Optional<Course> findById(Long id) {
-//        return courseRepository.findById(id);
-        return null;
+    public List<CourseDto> findAll() {
+        return courseRepository.findAll().stream()
+                .map(DomainToApi::courseToDto)
+                .toList();
     }
 
     @Override
-    public void update(Course course) {
-//        courseRepository.save(course);
+    public CourseDto findById(Long id) {
+        return courseRepository.findById(id)
+                .map(DomainToApi::courseToDto)
+                .orElseThrow();
     }
 
     @Override
-    public void deleteById(Long id) {
-//        courseRepository.deleteById(id);
+    public void update(Long id, UpdateCourseRequest courseDto) {
+        if (courseRepository.findById(id).isEmpty()) throw new NoSuchElementException();
+        courseRepository.save(dtoToCourse(id, courseDto));
     }
 
     @Override
-    public List<Course> findByTitleWithPrefix(String prefix) {
-//        return courseRepository.findByTitleWithPrefix(prefix);
-        return null;
+    public void create(UpdateCourseRequest courseDto) {
+        courseRepository.save(dtoToCourse(courseDto));
+    }
+
+    @Override
+    public void delete(Long id) {
+        courseRepository.deleteById(id);
+    }
+
+    @Override
+    public List<CourseDto> findByTitleWithPrefix(String prefix) {
+        return courseRepository.findByTitleLike(prefix + "%").stream()
+                .map(DomainToApi::courseToDto)
+                .toList();
     }
 }

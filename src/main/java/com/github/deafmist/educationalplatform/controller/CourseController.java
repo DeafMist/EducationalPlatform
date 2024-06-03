@@ -1,7 +1,7 @@
 package com.github.deafmist.educationalplatform.controller;
 
 import com.github.deafmist.educationalplatform.dto.ApiError;
-import com.github.deafmist.educationalplatform.dto.Course;
+import com.github.deafmist.educationalplatform.dto.CourseDto;
 import com.github.deafmist.educationalplatform.dto.UpdateCourseRequest;
 import com.github.deafmist.educationalplatform.service.CourseService;
 import jakarta.validation.Valid;
@@ -19,7 +19,7 @@ import java.util.NoSuchElementException;
 import static java.util.Objects.requireNonNullElse;
 
 @RestController
-@RequestMapping("/course")
+@RequestMapping("/courses")
 public class CourseController {
     private final CourseService courseService;
 
@@ -29,37 +29,33 @@ public class CourseController {
     }
 
     @GetMapping("")
-    public List<Course> courseTable() {
+    public List<CourseDto> getCourses() {
         return courseService.findAll();
     }
 
     @GetMapping("/{id}")
-    public Course getCourse(@PathVariable Long id) {
-        return courseService.findById(id).orElseThrow();
+    public CourseDto getCourse(@PathVariable Long id) {
+        return courseService.findById(id);
     }
 
     @GetMapping("/filter")
-    public List<Course> getCoursesByPrefix(@RequestParam(name = "titlePrefix", required = false) String prefix) {
+    public List<CourseDto> getCoursesByPrefix(@RequestParam(name = "titlePrefix", required = false) String prefix) {
         return courseService.findByTitleWithPrefix(requireNonNullElse(prefix, ""));
     }
 
     @PutMapping("/{id}")
     public void updateCourse(@PathVariable Long id, @Valid @RequestBody UpdateCourseRequest request) {
-        Course course = courseService.findById(id).orElseThrow();
-        Course response = new Course(id, request.author(), request.title());
-        courseService.update(response);
+        courseService.update(id, request);
     }
 
     @PostMapping
-    public Course createCourse(@Valid @RequestBody UpdateCourseRequest request) {
-        Course course = new Course(request.author(), request.title());
-        courseService.update(course);
-        return course;
+    public void createCourse(@Valid @RequestBody UpdateCourseRequest request) {
+        courseService.create(request);
     }
 
     @DeleteMapping("/{id}")
     public void deleteCourse(@PathVariable Long id) {
-        courseService.deleteById(id);
+        courseService.delete(id);
     }
 
     @ExceptionHandler

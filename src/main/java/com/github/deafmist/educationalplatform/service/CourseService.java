@@ -1,18 +1,20 @@
 package com.github.deafmist.educationalplatform.service;
 
-import com.github.deafmist.educationalplatform.dto.Course;
+import com.github.deafmist.educationalplatform.dto.CourseDto;
+import com.github.deafmist.educationalplatform.dto.UpdateCourseRequest;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface CourseService {
-    List<Course> findAll();
+    List<CourseDto> findAll();
 
-    Optional<Course> findById(Long id);
+    List<CourseDto> findByTitleWithPrefix(String prefix);
 
-    void update(Course course);
+    CourseDto findById(Long id);
 
-    void deleteById(Long id);
+    void update(Long id, UpdateCourseRequest courseDto);
 
-    List<Course> findByTitleWithPrefix(String prefix);
+    void create(UpdateCourseRequest courseDto);
+
+    void delete(Long id);
 }
